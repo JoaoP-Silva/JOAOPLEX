@@ -13,6 +13,7 @@ struct mtxData{
     vector<mpq_class> objective;
     vector<vector<mpq_class>> constraints;
     unordered_map<int, int> variablesMap;
+    vector<int> basicLines;
 };
 
 void parseObjectiveFunc(string line, vector<pair<int, mpq_class>>& objectiveFunction, set<int>& variables){
@@ -68,7 +69,7 @@ void parseConstraints(fstream& f, vector<vector<pair<int, mpq_class>>>& constrai
     auxVariables = 0;
     while(getline(f, line)){
         stringstream s(line);
-        bool minusFlag = 0, leqFlag = 0;
+        bool minusFlag = 0, geqZeroFlag = 0;
         vector<pair<int, mpq_class>> constraint;
         while(s){
             s >> word;
@@ -102,10 +103,14 @@ void parseConstraints(fstream& f, vector<vector<pair<int, mpq_class>>>& constrai
             else if(b == '='){
                 char f = word.front();
                 if(f == '>'){
+                    s >> word;
+                    if(word == "0"){
+                        geqZeroFlag = 1;
+                        continue;
+                    }
                     mpq_class coef = -1;
                     constraint.push_back(make_pair(-1, coef));
                     auxVariables++;
-                    s >> word;
                     coef = mpq_class(word);
                     constraint.push_back(make_pair(0, coef));
                 }
@@ -114,7 +119,6 @@ void parseConstraints(fstream& f, vector<vector<pair<int, mpq_class>>>& constrai
                     constraint.push_back(make_pair(-1, coef));
                     auxVariables++;
                     s >> word;
-                    leqFlag = 1;
                     coef = mpq_class(word);
                     constraint.push_back(make_pair(0, coef));
                 }
@@ -128,18 +132,7 @@ void parseConstraints(fstream& f, vector<vector<pair<int, mpq_class>>>& constrai
             }
         }
         
-        constraintsMtx.push_back(constraint);
-        if(leqFlag){
-            vector<pair<int, mpq_class>> newConstraint;
-            mpq_class coef = 1;
-            newConstraint.push_back(make_pair(-2, coef));
-            newConstraint.push_back(make_pair(-1, coef));
-            auxVariables++;
-            coef = 0;
-            newConstraint.push_back(make_pair(0, coef));
-            constraintsMtx.push_back(newConstraint);
-        }
-        
+        if(!geqZeroFlag){ constraintsMtx.push_back(constraint); }
     }
 }
 
