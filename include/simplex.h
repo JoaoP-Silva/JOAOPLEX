@@ -2,6 +2,9 @@
 #include <iostream>
 #include <vector>
 
+//Include print functions
+#include "inputParser.h"
+
 using namespace std;
 
 //Return the element with the lower ratio b / l. If all elements ratio are leq than 0, return -1.
@@ -54,5 +57,14 @@ void simplexSolver(vector<vector<mpq_class>>& tableu, vector<int> basic){
             }
         }
         if(allGreaterThanZero){ end = 1; }
+    }
+}
+
+void printTableu(vector<vector<mpq_class>> m){
+    cout << "Tableu:" << endl;
+    for(int i =0; i<m.size(); i++){
+        vector<mpq_class> v = m[i];
+        printVector(v);
+        cout << endl;
     }
 }
