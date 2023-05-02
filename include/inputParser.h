@@ -13,7 +13,6 @@ struct mtxData{
     vector<mpq_class> objective;
     vector<vector<mpq_class>> constraints;
     unordered_map<int, int> variablesMap;
-    vector<int> basicLines;
 };
 
 void parseObjectiveFunc(string line, vector<pair<int, mpq_class>>& objectiveFunction, set<int>& variables){

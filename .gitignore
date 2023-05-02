@@ -1,0 +1,15 @@
+#Output files
+*.out
+*.o
+
+#.vscode
+.vscode/*
+
+#logs
+*.log
+
+#libs
+/lib/*
+
+#txt
+*.txt

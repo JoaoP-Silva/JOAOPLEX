@@ -4,12 +4,17 @@
 
 using namespace std;
 
-//Return the basic variable with the lower ratio basic / l
-int lowerRatio(vector<vector<mpq_class>>& tableu, int l, vector<int> basic){
-    bool allLessThanZero = 1;
-    for(auto b : basic){
-        if(tableu[])
+//Return the element with the lower ratio b / l. If all elements ratio are leq than 0, return -1.
+int lowerRatio(vector<vector<mpq_class>>& tableu, int c){
+    int lastCollumn = tableu[0].size(), lines = tableu.size(), lowerLine = -1;
+    mpq_class lower(0);
+    for(int i = 1; i < lines; i++){
+        if(tableu[i][c] && tableu[i][lastCollumn]/tableu[i][c] < lower){
+            lower = tableu[i][lastCollumn];
+            lowerLine = i;
+        }
     }
+    return lowerLine;
 }
 
 //Pivotize the row l in collum c
@@ -40,11 +45,14 @@ void simplexSolver(vector<vector<mpq_class>>& tableu, vector<int> basic){
     int rows = tableu.size(), collums = tableu[0].size();
     while(!end){
         bool allGreaterThanZero = 1;
-        for(int i = 2; i < collums - 1; i ++){
-            if(tableu[0][i] < 0){
+        for(int j = 2; j < collums - 1; j ++){
+            if(tableu[0][j] < 0){
                 allGreaterThanZero = 0;
-                
+                int r = lowerRatio(tableu, j);
+                pivotize(tableu, r, j);
+                break;
             }
         }
+        if(allGreaterThanZero){ end = 1; }
     }
 }
