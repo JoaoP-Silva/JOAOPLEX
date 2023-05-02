@@ -15,7 +15,7 @@ struct mtxData{
     unordered_map<int, int> variablesMap;
 };
 
-void parseObjectiveFunc(string line, vector<pair<int, mpq_class>>& objectiveFunction, set<int> variables){
+void parseObjectiveFunc(string line, vector<pair<int, mpq_class>>& objectiveFunction, set<int>& variables){
     string word;
     stringstream s(line);
     s >> word;
@@ -41,18 +41,25 @@ void parseObjectiveFunc(string line, vector<pair<int, mpq_class>>& objectiveFunc
             }
             if(minusFlag){ coef *= -1; }
             int figures = 0;
-                for(int i=word.size() - 1; i<=0; i--){
+                for(int i=word.size() - 1; i>=0; i--){
                         if(!isdigit(word[i])) {break;}
                         delimiter = i;
                         figures++;
                 }
-            int idx = stoi(word.substr(delimiter, figures));
+            string sub = word.substr(delimiter, figures);
+            int idx = stoi(sub);
             pair<int, mpq_class> p = make_pair(idx, coef);
             objectiveFunction.push_back(p);
             variables.insert(idx);
+            //cout << "Word = " << word << "Has coefficient = " << coef.get_d() << " and idx = " << idx << endl;
         }
         else if(b == '+'){minusFlag = 0;}
         else if(b == '-'){ minusFlag = 1;}
+    }
+    if(!max){
+        for(int i =0; i<objectiveFunction.size(); i++){
+            objectiveFunction[i].second *= -1;
+        }
     }
 }
 
@@ -79,12 +86,13 @@ void parseConstraints(fstream& f, vector<vector<pair<int, mpq_class>>>& constrai
                 }
                 if(minusFlag){ coef *= -1; }
                 int figures = 0;
-                for(int i=word.size() - 1; i<=0; i--){
+                for(int i=word.size() - 1; i>=0; i--){
                         if(!isdigit(word[i])) {break;}
                         delimiter = i;
                         figures++;
                 }
-                int idx = stoi(word.substr(delimiter, figures));
+                string sub = word.substr(delimiter, figures);
+                int idx = stoi(sub);
                 pair<int, mpq_class> p = make_pair(idx, coef);
                 constraint.push_back(p);
                 variables.insert(idx);
@@ -135,6 +143,28 @@ void parseConstraints(fstream& f, vector<vector<pair<int, mpq_class>>>& constrai
     }
 }
 
+void printVector(vector<mpq_class>& v){
+    for(int i =0; i<v.size(); i++){
+        cout<< v[i].get_d() << " ";
+    }
+    cout << endl;
+}
+
+void printObjectiveFunct(mtxData* d){
+    cout<< "Objective function :" << endl;
+    vector<mpq_class> v = d->objective;
+    printVector(v);
+}
+
+void printConstraints(mtxData* d){
+    vector<vector<mpq_class>> m = d->constraints;
+    cout << "Constraints :" << endl;
+    for(int i =0; i<m.size(); i++){
+        vector<mpq_class> v = m[i];
+        printVector(v);
+        cout << endl;
+    }
+}
 
 mtxData* inputParser(fstream& f){
     //A vector with pairs (index, value) of variables != 0 in the objective function
@@ -149,12 +179,14 @@ mtxData* inputParser(fstream& f){
     parseObjectiveFunc(line, objectiveFunction, variables);
     parseConstraints(f, constraintsMtx, variables, auxVariables);
     int mapIdx = 0;
+    //cout << "variables.size() = " << variables.size() << endl;
     for(auto it : variables){
-        idxMap.insert(it, mapIdx);
-        data->variablesMap.insert(mapIdx, it);
+        idxMap.insert(make_pair(it, mapIdx));
+        data->variablesMap.insert(make_pair(mapIdx, it));
         mapIdx++;
     }
     int numVariables = variables.size() + auxVariables;
+    //cout << "constraintsMtx.size() = " << constraintsMtx.size() << endl;
     for(int i = 0; i<constraintsMtx.size(); i++){
         vector<mpq_class> vec;
         for(int j = 0; j<numVariables+1; j++){
@@ -200,4 +232,8 @@ mtxData* inputParser(fstream& f){
             }
         }
     }
-}   
+    printObjectiveFunct(data);
+    printConstraints(data);
+
+    return data;
+}

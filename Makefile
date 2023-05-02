@@ -1,33 +1,31 @@
-# folders
-INCLUDE_FOLDER = ./include/
-BIN_FOLDER = ./bin/
-OBJ_FOLDER = ./obj/
-SRC_FOLDER = ./src/
-GMP_DIR = ./lib/gmp/
-GMP_SRC = $(wildcard $(GMP_DIR)/*.c)
-GMP_OBJ = $(patsubst $(GMP_DIR)/%.c, $(GMP_DIR)/%.o, $(GMP_SRC))
-GMP_INC = -I$(GMP_DIR)
+# Compiler
+CXX=g++
+CXXFLAGS=-Wall -Wextra -pedantic -std=c++11 -O2 -g
 
-# cc and flags
-CC = g++
-CXXFLAGS = -std=c++11 -g -Wall
-CXXFLAGS += $(GMP_INC)
-LDFLAGS += $(GMP_OBJ)
+# Directories
+SRC_DIR=./src
+OBJ_DIR=./obj
+LIB_DIR=./libs/gmp
 
-# all sources, objs, and header files
-MAIN = main
-TARGET = JOAOPLEX.exe
-SRC = $(wildcard $(SRC_FOLDER)*.cc)
-OBJ = $(patsubst $(SRC_FOLDER)%.cc, $(OBJ_FOLDER)%.o, $(SRC))
-INPUT = input/input.txt
+# Libraries
+LIBS=-L$(LIB_DIR) -lgmp
 
-$(OBJ_FOLDER)%.o: $(SRC_FOLDER)%.cc
-	$(CC) $(CXXFLAGS) -c $< -o $@ -I$(INCLUDE_FOLDER)
+# Source files
+SRCS=$(wildcard $(SRC_DIR)/*.cpp)
+OBJS=$(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 
-all: $(OBJ)
-	$(CC) $(CXXFLAGS) -o $(BIN_FOLDER)$(TARGET) $(OBJ)
+# Executable
+EXEC=JOAOPLEX.out
+
+all: $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) $(LIBS) -o $(EXEC)
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	@rm -rf $(OBJ_FOLDER)* $(BIN_FOLDER)*
+	rm -f $(OBJS) $(EXEC)
+	
 run:
-	./bin/NOME_EXECUTAVEL.out < $(INPUT) 
+	./$(EXEC) input.txt 
+
