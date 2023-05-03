@@ -14,6 +14,6 @@ int lowerRatio(vector<vector<mpq_class>>& tableu, int c);
 void pivotize(vector<vector<mpq_class>>& tableu, int l, int c);
 
 //Solve a linear programming problem using simplex. Take as parameters a standard form tableu and a list of basic variables
-void simplexSolver(vector<vector<mpq_class>>& tableu, vector<int>& base);
+int simplexSolver(vector<vector<mpq_class>>& tableu, vector<int>& base);
 
 #endif

@@ -67,9 +67,60 @@ int main(int argc, char* argv[]){
     }
     printTableu(auxTableu);
     simplexSolver(auxTableu, base);
+    cout << "Aux tableu after simplex:\n";
     printTableu(auxTableu);
-    printBase(base);
+    //printBase(base);
     
-    
+    //Struct to save results
+    results* out = new results;
+
+    //Checking feasibility
+    if(auxTableu[0][auxCollumns -1] < 0){
+        //Original tableu is infeasible
+        out->status = "inviavel";
+        for(int j = 0; j < rows; j++){
+            out->certificate.push_back(mainTableu[0][j]);
+        }
+    }
+
+    //Returning to the original tableu
+    for(int j = 0; j < rows; j ++){
+        mainTableu[0][j] = auxTableu[0][j];
+    }
+    for(int i = 1; i < rows; i++){
+        for(int j = 0; j < collumns - 1; j++){
+            mainTableu[i][j] = auxTableu[i][j];
+        }
+    }
+    for(int i = 0; i < rows; i++){
+        mainTableu[i][collumns -1] = auxTableu[i][auxCollumns - 1];
+    }
+    for(auto b : base){
+        for(int i = 1; i < rows; i++){
+            if(mainTableu[i][b] == 1){
+                pivotize(mainTableu, i, b);
+                break;
+            }
+        }
+    }
+    int r = simplexSolver(mainTableu, base);
+    if(r){
+        out->status = "ilimitado";
+        for(int i = 1; i < rows; i++){
+            out->certificate.push_back(mainTableu[i][r]);
+        }
+    }else{
+        out->status = "otimo";
+        out->z = mainTableu[0][collumns - 1];
+        for(int j = 0; j < rows; j++){
+            out->certificate.push_back(mainTableu[0][j]);
+        }
+        for(int j = rows; j < collumns - 1; j++){
+            out->solution.push_back(mainTableu[0][j]);
+            out->variables.push_back(data->variablesMap[j - rows]);
+        }
+    }
+
+    printResult(out);
     return 0;
 }
