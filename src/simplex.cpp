@@ -31,7 +31,7 @@ void pivotize(vector<vector<mpq_class>>& tableu, int l, int c){
             vector<mpq_class> aux = tableu[l];
             mpq_class val = tableu[i][c];
             for(int j = 0; j < collums; j++){
-                aux[j] *= val;
+                aux[j] *= -1 * val;
                 tableu[i][j] += aux[j];
             }
         }
@@ -39,7 +39,7 @@ void pivotize(vector<vector<mpq_class>>& tableu, int l, int c){
 }
 
 //Solve a linear programming problem using simplex. Take as parameters a standard form tableu and a list of basic variables
-void simplexSolver(vector<vector<mpq_class>>& tableu){
+void simplexSolver(vector<vector<mpq_class>>& tableu, vector<int>& base ){
     bool end = 0;
     int rows = tableu.size(), collums = tableu[0].size();
     while(!end){
@@ -50,6 +50,7 @@ void simplexSolver(vector<vector<mpq_class>>& tableu){
                 int r = lowerRatio(tableu, j);
                 if(r != -1){
                     pivotize(tableu, r, j);
+                    base[r - 1] = j;
                     break;
                 }else{
                     end = 1;
@@ -57,7 +58,6 @@ void simplexSolver(vector<vector<mpq_class>>& tableu){
                 }
             }
         }
-        printTableu(tableu);
         if(allGreaterThanZero){ end = 1; }
     }
 }

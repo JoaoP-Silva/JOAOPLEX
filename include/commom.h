@@ -24,4 +24,6 @@ void printConstraints(mtxData* d);
 
 void printTableu(vector<vector<mpq_class>> m);
 
+void printBase(vector<int> v);
+
 #endif

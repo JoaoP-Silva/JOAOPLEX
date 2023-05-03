@@ -35,3 +35,11 @@ void printTableu(vector<vector<mpq_class>> m){
     }
 }
 
+void printBase(vector<int> v){
+    cout << "Base:\n";
+    for(int i = 0; i < v.size(); i++){
+        cout << v[i] << " ";
+    }
+    cout << endl;
+}
+
