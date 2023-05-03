@@ -12,7 +12,7 @@ int main(int argc, char* argv[]){
     mtxData* data = inputParser(f);
     int rows = data->constraints.size() + 1, collumns = data->constraints[0].size() + rows - 1;
 
-    //Setting the main tableu
+    //Setting the main tableau
     vector<vector<mpq_class>> mainTableu(rows, vector<mpq_class>(collumns, 0));
     for(int j = 0; j < rows - 1; j++){
         mainTableu[j + 1][j] = 1;
@@ -25,6 +25,7 @@ int main(int argc, char* argv[]){
             mainTableu[i][j] = data->constraints[i - 1][j - rows + 1];
         }
     }
+    printTableu(mainTableu);
     //Checking if there are negatives values in b
     for(int i = 1; i < rows; i++){
         if(mainTableu[i][collumns - 1] < 0){
@@ -34,7 +35,8 @@ int main(int argc, char* argv[]){
         }
     }
 
-    //Setting the auxiliar tableu
+    printTableu(mainTableu);
+    //Setting the auxiliar tableau
     int auxRows = rows, auxCollumns = collumns + rows - 1;
     vector<vector<mpq_class>> auxTableu(auxRows, vector<mpq_class>(auxCollumns, 0));
     for(int i = 1; i < auxRows; i++){
@@ -67,7 +69,7 @@ int main(int argc, char* argv[]){
     }
     printTableu(auxTableu);
     simplexSolver(auxTableu, base);
-    cout << "Aux tableu after simplex:\n";
+    cout << "Aux tableau after simplex:\n";
     printTableu(auxTableu);
     //printBase(base);
     
@@ -76,51 +78,52 @@ int main(int argc, char* argv[]){
 
     //Checking feasibility
     if(auxTableu[0][auxCollumns -1] < 0){
-        //Original tableu is infeasible
+        //Original tableau is infeasible
         out->status = "inviavel";
         for(int j = 0; j < rows; j++){
             out->certificate.push_back(mainTableu[0][j]);
         }
     }
 
-    //Returning to the original tableu
-    for(int j = 0; j < rows; j ++){
-        mainTableu[0][j] = auxTableu[0][j];
-    }
-    for(int i = 1; i < rows; i++){
-        for(int j = 0; j < collumns - 1; j++){
-            mainTableu[i][j] = auxTableu[i][j];
+    else{
+        //Returning to the original tableau
+        for(int j = 0; j < rows; j ++){
+            mainTableu[0][j] = auxTableu[0][j];
         }
-    }
-    for(int i = 0; i < rows; i++){
-        mainTableu[i][collumns -1] = auxTableu[i][auxCollumns - 1];
-    }
-    for(auto b : base){
         for(int i = 1; i < rows; i++){
-            if(mainTableu[i][b] == 1){
-                pivotize(mainTableu, i, b);
-                break;
+            for(int j = 0; j < collumns - 1; j++){
+                mainTableu[i][j] = auxTableu[i][j];
             }
         }
+        for(int i = 0; i < rows; i++){
+            mainTableu[i][collumns -1] = auxTableu[i][auxCollumns - 1];
+        }
+        for(auto b : base){
+            for(int i = 1; i < rows; i++){
+                if(mainTableu[i][b] == 1){
+                    pivotize(mainTableu, i, b);
+                    break;
+                }
+            }
+        }
+        cout << "Main tableau before simplex\n";
+        printTableu(mainTableu);
+        int r = simplexSolver(mainTableu, base);
+        if(r){
+            out->status = "ilimitado";
+            for(int i = 1; i < rows; i++){
+                out->certificate.push_back(mainTableu[i][r]);
+            }
+        }else{
+            out->status = "otimo";
+            out->z = mainTableu[0][collumns - 1];
+            for(int j = 0; j < rows; j++){
+                out->certificate.push_back(mainTableu[0][j]);
+            }
+            setSolution(out, mainTableu, base, data->variablesMap);
+        }
     }
-    int r = simplexSolver(mainTableu, base);
-    if(r){
-        out->status = "ilimitado";
-        for(int i = 1; i < rows; i++){
-            out->certificate.push_back(mainTableu[i][r]);
-        }
-    }else{
-        out->status = "otimo";
-        out->z = mainTableu[0][collumns - 1];
-        for(int j = 0; j < rows; j++){
-            out->certificate.push_back(mainTableu[0][j]);
-        }
-        for(int j = rows; j < collumns - 1; j++){
-            out->solution.push_back(mainTableu[0][j]);
-            out->variables.push_back(data->variablesMap[j - rows]);
-        }
-    }
-
+    
     printResult(out);
     return 0;
 }

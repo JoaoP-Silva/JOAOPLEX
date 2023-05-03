@@ -42,4 +42,7 @@ void printBase(vector<int> v);
 
 void printResult(results* r);
 
+void setSolution(results* r, vector<vector<mpq_class>> tableau,
+                vector<int> base, unordered_map<int, int> var_map);
+
 #endif

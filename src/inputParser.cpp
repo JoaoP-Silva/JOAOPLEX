@@ -55,6 +55,7 @@ void parseConstraints(fstream& f, vector<vector<pair<int, mpq_class>>>& constrai
     auxVariables = 0;
     while(getline(f, line)){
         stringstream s(line);
+        if(line.empty()){continue;}
         bool minusFlag = 0, geqZeroFlag = 0;
         vector<pair<int, mpq_class>> constraint;
         while(s){
@@ -92,13 +93,14 @@ void parseConstraints(fstream& f, vector<vector<pair<int, mpq_class>>>& constrai
                     s >> word;
                     if(word == "0"){
                         geqZeroFlag = 1;
-                        continue;
+                        break;
                     }
                     mpq_class coef = -1;
                     constraint.push_back(make_pair(-1, coef));
                     auxVariables++;
                     coef = mpq_class(word);
                     constraint.push_back(make_pair(0, coef));
+                    s >> word;
                 }
                 else if(f == '<'){
                     mpq_class coef = 1;
@@ -107,11 +109,13 @@ void parseConstraints(fstream& f, vector<vector<pair<int, mpq_class>>>& constrai
                     s >> word;
                     coef = mpq_class(word);
                     constraint.push_back(make_pair(0, coef));
+                    s >> word;
                 }
                 else if(f == '='){
                     s >> word;
                     mpq_class coef(word);
                     constraint.push_back(make_pair(0, coef));
+                    s >> word;
                 }else{
                     cout << "Bad input\n";
                 }

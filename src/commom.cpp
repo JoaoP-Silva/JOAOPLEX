@@ -60,3 +60,25 @@ void printResult(results* r){
     cout << endl;
 }
 
+
+void setSolution(results* r, vector<vector<mpq_class>> tableau, 
+                vector<int> base, unordered_map<int, int> varMap){
+    vector<int> var;
+    vector<mpq_class> coef;
+    int rows = tableau.size(), collums = tableau[0].size();
+    for(auto b : base){
+        for(int i = 1; i < rows; i++){
+            if(tableau[i][b] == 1){
+                mpq_class val = tableau[i][collums - 1];
+                var.push_back(i);
+                coef.push_back(val);
+                break;
+            }
+        }
+    }
+    r->solution = coef;
+    for(int i = 0; i < var.size(); i++){
+        var[i] = varMap[var[i]];
+    }
+    r->variables = var;
+}
