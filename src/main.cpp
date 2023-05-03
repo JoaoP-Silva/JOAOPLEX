@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <unordered_set>
 
 #include "../include/simplex.h"
 #include "../include/inputParser.h"
@@ -10,6 +11,7 @@ int main(int argc, char* argv[]){
 
     //Parse the input, generating a matrix close to canonical form.
     mtxData* data = inputParser(f);
+
     int rows = data->constraints.size() + 1, collumns = data->constraints[0].size() + rows - 1;
 
     //Setting the main tableau
@@ -25,7 +27,7 @@ int main(int argc, char* argv[]){
             mainTableu[i][j] = data->constraints[i - 1][j - rows + 1];
         }
     }
-    printTableu(mainTableu);
+
     //Checking if there are negatives values in b
     for(int i = 1; i < rows; i++){
         if(mainTableu[i][collumns - 1] < 0){
@@ -35,7 +37,6 @@ int main(int argc, char* argv[]){
         }
     }
 
-    printTableu(mainTableu);
     //Setting the auxiliar tableau
     int auxRows = rows, auxCollumns = collumns + rows - 1;
     vector<vector<mpq_class>> auxTableu(auxRows, vector<mpq_class>(auxCollumns, 0));
@@ -44,6 +45,7 @@ int main(int argc, char* argv[]){
             auxTableu[i][j] = mainTableu[i][j];
         }
     }
+
     {
         int j = collumns - 1;
         for(int i = 1; i < auxRows; i++){
@@ -67,10 +69,8 @@ int main(int argc, char* argv[]){
     for(int i = collumns - 1; i < auxCollumns -1; i ++){
         base.push_back(i);
     }
-    printTableu(auxTableu);
     simplexSolver(auxTableu, base);
     cout << "Aux tableau after simplex:\n";
-    printTableu(auxTableu);
     //printBase(base);
     
     //Struct to save results
@@ -107,8 +107,9 @@ int main(int argc, char* argv[]){
             }
         }
         cout << "Main tableau before simplex\n";
-        printTableu(mainTableu);
         int r = simplexSolver(mainTableu, base);
+        printTableu(mainTableu);
+        printBase(base);
         if(r){
             out->status = "ilimitado";
             for(int i = 1; i < rows; i++){
@@ -117,10 +118,10 @@ int main(int argc, char* argv[]){
         }else{
             out->status = "otimo";
             out->z = mainTableu[0][collumns - 1];
-            for(int j = 0; j < rows; j++){
+            for(int j = 0; j < data->numObjectiveVar; j++){
                 out->certificate.push_back(mainTableu[0][j]);
             }
-            setSolution(out, mainTableu, base, data->variablesMap);
+            setSolution(out, mainTableu, base, data);
         }
     }
     

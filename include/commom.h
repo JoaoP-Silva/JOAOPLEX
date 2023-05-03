@@ -17,6 +17,7 @@ struct mtxData{
     vector<mpq_class> objective;
     vector<vector<mpq_class>> constraints;
     unordered_map<int, int> variablesMap;
+    int numObjectiveVar;
 };
 
 
@@ -43,6 +44,6 @@ void printBase(vector<int> v);
 void printResult(results* r);
 
 void setSolution(results* r, vector<vector<mpq_class>> tableau,
-                vector<int> base, unordered_map<int, int> var_map);
+                vector<int> base, mtxData* d);
 
 #endif

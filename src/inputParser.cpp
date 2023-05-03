@@ -26,6 +26,7 @@ void parseObjectiveFunc(string line, vector<pair<int, mpq_class>>& objectiveFunc
                 }
                 coef = mpq_class(word.substr(0, delimiter));
             }
+            else if(f == '-'){ minusFlag = 1; }
             if(minusFlag){ coef *= -1; }
             int figures = 0;
                 for(int i=word.size() - 1; i>=0; i--){
@@ -71,7 +72,7 @@ void parseConstraints(fstream& f, vector<vector<pair<int, mpq_class>>>& constrai
                         delimiter = i+1;
                     }
                     coef = mpq_class(word.substr(0, delimiter));
-                }
+                }else if(f == '-'){ minusFlag = 1; }
                 if(minusFlag){ coef *= -1; }
                 int figures = 0;
                 for(int i=word.size() - 1; i>=0; i--){
@@ -137,6 +138,8 @@ mtxData* inputParser(fstream& f){
     unordered_map<int , int> idxMap;
     getline(f, line);
     parseObjectiveFunc(line, objectiveFunction, variables);
+    int _numObjectiveVar = variables.size();
+    data->numObjectiveVar = _numObjectiveVar;
     parseConstraints(f, constraintsMtx, variables, auxVariables);
     int mapIdx = 0;
     //cout << "variables.size() = " << variables.size() << endl;
