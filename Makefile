@@ -1,6 +1,6 @@
 # Compiler
 CXX=g++
-CXXFLAGS=-Wall -Wextra -pedantic -std=c++11 -O2 -g
+CXXFLAGS=-Wall -Wextra -std=c++11 -g
 
 # Directories
 SRC_DIR=./src
