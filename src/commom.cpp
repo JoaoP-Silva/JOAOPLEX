@@ -43,21 +43,21 @@ void printBase(vector<int> v){
     cout << endl;
 }
 
-void printResult(results* r){
-    cout << "Status: " << r->status << endl;
+void printResult(results* r, fstream& outFile){
+    outFile << "Status: " << r->status << endl;
     if(r->status == "otimo"){
-        cout << "Objetivo: " << r->z.get_d() << endl;
-        cout << "Solucao:\n";
+        outFile << "Objetivo: " << r->z.get_d() << endl;
+        outFile << "Solucao:\n";
         for(int i = 0; i < r->variables.size(); i++){
-            cout << r->solution[i].get_d() << "x" << r->variables[i] << " ";
+            outFile << r->solution[i].get_d() << "x" << r->variables[i] << " ";
         }
-        cout<< endl;
+        outFile << endl;
     }
-    cout << "Certificado:\n";
+    outFile << "Certificado:\n";
     for(auto i : r->certificate){
-         cout << i.get_d() << " ";
+        outFile << i.get_d() << " ";
     }
-    cout << endl;
+    outFile << endl;
 }
 
 

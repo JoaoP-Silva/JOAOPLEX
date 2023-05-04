@@ -27,5 +27,5 @@ clean:
 	rm -f $(OBJS) $(EXEC)
 	
 run:
-	./$(EXEC) input.txt 
+	./$(EXEC) input.txt output.txt
 

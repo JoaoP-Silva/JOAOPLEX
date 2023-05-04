@@ -195,8 +195,8 @@ mtxData* inputParser(fstream& f){
             }
         }
     }
-    printObjectiveFunct(data);
-    printConstraints(data);
+    //printObjectiveFunct(data);
+    //printConstraints(data);
 
     return data;
 }

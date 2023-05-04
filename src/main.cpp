@@ -7,10 +7,11 @@
 
 int main(int argc, char* argv[]){
     //fstream f("input.txt", std::fstream::in);
-    fstream f(argv[1], std::fstream::in);
+    fstream fin(argv[1], std::fstream::in);
+    fstream fout(argv[2], std::fstream::out);
 
     //Parse the input, generating a matrix close to canonical form.
-    mtxData* data = inputParser(f);
+    mtxData* data = inputParser(fin);
 
     int rows = data->constraints.size() + 1, collumns = data->constraints[0].size() + rows - 1;
 
@@ -70,7 +71,6 @@ int main(int argc, char* argv[]){
         base.push_back(i);
     }
     simplexSolver(auxTableu, base);
-    cout << "Aux tableau after simplex:\n";
 
     //Struct to save results
     results* out = new results;
@@ -105,7 +105,6 @@ int main(int argc, char* argv[]){
                 }
             }
         }
-        cout << "Main tableau before simplex\n";
         int r = simplexSolver(mainTableu, base);
         if(r){
             out->status = "ilimitado";
@@ -122,6 +121,6 @@ int main(int argc, char* argv[]){
         }
     }
     
-    printResult(out);
+    printResult(out, fout);
     return 0;
 }

@@ -5,8 +5,9 @@
 #include <unordered_map>
 #include <iostream>
 #include <string>
+#include <fstream>
 
-#include "../lib/gmp/gmpxx.h"
+#include <gmpxx.h>
 
 using namespace std;
 
@@ -41,7 +42,7 @@ void printTableu(vector<vector<mpq_class>> m);
 
 void printBase(vector<int> v);
 
-void printResult(results* r);
+void printResult(results* r, fstream& out);
 
 void setSolution(results* r, vector<vector<mpq_class>> tableau,
                 vector<int> base, mtxData* d);
