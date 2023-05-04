@@ -71,8 +71,7 @@ int main(int argc, char* argv[]){
     }
     simplexSolver(auxTableu, base);
     cout << "Aux tableau after simplex:\n";
-    //printBase(base);
-    
+
     //Struct to save results
     results* out = new results;
 
@@ -80,7 +79,7 @@ int main(int argc, char* argv[]){
     if(auxTableu[0][auxCollumns -1] < 0){
         //Original tableau is infeasible
         out->status = "inviavel";
-        for(int j = 0; j < rows; j++){
+        for(int j = 0; j < data->numObjectiveVar; j++){
             out->certificate.push_back(mainTableu[0][j]);
         }
     }
@@ -108,8 +107,6 @@ int main(int argc, char* argv[]){
         }
         cout << "Main tableau before simplex\n";
         int r = simplexSolver(mainTableu, base);
-        printTableu(mainTableu);
-        printBase(base);
         if(r){
             out->status = "ilimitado";
             for(int i = 1; i < rows; i++){
