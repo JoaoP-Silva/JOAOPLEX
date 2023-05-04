@@ -1,2 +1,2 @@
 # JOAOPLEX
-Maybe not the best SIMPLEX implementation, but the one with the coolest name.
+Maybe not the best C++ SIMPLEX implementation, but the one with the coolest name.
