@@ -19,4 +19,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 
 .PHONY: clean
 clean:
-	rm -f $(OBJDIR)/*.o $(BINDIR)/programa
+	rm -f $(OBJDIR)/*.o $(BINDIR)/JOAOPLEX
+
+run:
+	./JOAOPLEX input.txt output.txt
