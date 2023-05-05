@@ -1,31 +1,22 @@
-# Compiler
-CXX=g++
-CXXFLAGS=-Wall -Wextra -std=c++11 -g
+CC = g++
+CFLAGS = -Wall -Wextra -std=c++11
+LDFLAGS += -L./gmp-6.2.1/.libs
+LDLIBS += -lgmp
 
-# Directories
-SRC_DIR=./src
-OBJ_DIR=./obj
-LIB_DIR=./libs/gmp
+SRCDIR = src
+INCDIR = include
+OBJDIR = obj
+BINDIR = .
 
-# Libraries
-LIBS=-L$(LIB_DIR) -lgmp
+SRCFILES := $(wildcard $(SRCDIR)/*.cpp)
+OBJFILES := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCFILES))
 
-# Source files
-SRCS=$(wildcard $(SRC_DIR)/*.cpp)
-OBJS=$(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
+$(BINDIR)/programa: $(OBJFILES)
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-# Executable
-EXEC=JOAOPLEX.out
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	$(CC) $(CFLAGS) -I$(INCDIR) -c $< -o $@
 
-all: $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) $(LIBS) -o $(EXEC)
-
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
+.PHONY: clean
 clean:
-	rm -f $(OBJS) $(EXEC)
-	
-run:
-	./$(EXEC) input.txt output.txt
-
+	rm -f $(OBJDIR)/*.o $(BINDIR)/programa
