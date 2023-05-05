@@ -7,7 +7,7 @@
 #include <string>
 #include <fstream>
 
-#include <gmpxx.h>
+#include "gmpxx.h"
 
 using namespace std;
 

@@ -6,12 +6,15 @@
 #include "../include/inputParser.h"
 
 int main(int argc, char* argv[]){
-    //fstream f("input.txt", std::fstream::in);
     fstream fin(argv[1], std::fstream::in);
     fstream fout(argv[2], std::fstream::out);
 
     //Parse the input, generating a matrix close to canonical form.
+    if(!fin.is_open()){ cout << "File error\n"; return 0;}
     mtxData* data = inputParser(fin);
+    if(data->constraints.empty()){
+        
+    }
 
     int rows = data->constraints.size() + 1, collumns = data->constraints[0].size() + rows - 1;
 
