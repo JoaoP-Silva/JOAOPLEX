@@ -12,8 +12,25 @@ int main(int argc, char* argv[]){
     //Parse the input, generating a matrix close to canonical form.
     if(!fin.is_open()){ cout << "File error\n"; return 0;}
     mtxData* data = inputParser(fin);
-    if(data->constraints.empty()){
-        
+
+    //Struct to save results
+    results* out = new results;
+
+
+    //Whether objective function is empty
+    if(data->objective.size() == 1){
+        out->status = "otimo";
+        out->certificate = vector<mpq_class>(1, 0);
+        out->z = 0;
+        printResult(out, fout);
+        return 0;
+    }
+    //Whether have a objective function but no constraints
+    else if(data->constraints.empty()){
+        out->status = "ilimitado";
+        out->certificate = vector<mpq_class>(1, -1);
+        printResult(out, fout);
+        return 0;
     }
 
     int rows = data->constraints.size() + 1, collumns = data->constraints[0].size() + rows - 1;
@@ -74,9 +91,6 @@ int main(int argc, char* argv[]){
         base.push_back(i);
     }
     simplexSolver(auxTableu, base);
-
-    //Struct to save results
-    results* out = new results;
 
     //Checking feasibility
     if(auxTableu[0][auxCollumns -1] < 0){

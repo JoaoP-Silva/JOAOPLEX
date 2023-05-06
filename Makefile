@@ -11,7 +11,7 @@ BINDIR = .
 SRCFILES := $(wildcard $(SRCDIR)/*.cpp)
 OBJFILES := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCFILES))
 
-$(BINDIR)/programa: $(OBJFILES)
+$(BINDIR)/JOAOPLEX.out: $(OBJFILES)
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
@@ -19,7 +19,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 
 .PHONY: clean
 clean:
-	rm -f $(OBJDIR)/*.o $(BINDIR)/JOAOPLEX
+	rm -f $(OBJDIR)/*.o $(BINDIR)/JOAOPLEX.out
 
 run:
-	./JOAOPLEX input.txt output.txt
+	./JOAOPLEX.out input.txt output.txt
