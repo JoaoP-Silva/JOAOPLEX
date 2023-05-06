@@ -19,6 +19,7 @@ struct mtxData{
     vector<vector<mpq_class>> constraints;
     unordered_map<int, int> variablesMap;
     int numObjectiveVar;
+    bool min;
 };
 
 

@@ -2,13 +2,13 @@
 
 using namespace std;
 
-void parseObjectiveFunc(string line, vector<pair<int, mpq_class>>& objectiveFunction, set<int>& variables){
+void parseObjectiveFunc(string line, vector<pair<int, mpq_class>>& objectiveFunction, set<int>& variables, bool& min){
     string word;
     stringstream s(line);
     s >> word;
-    bool max = 1;
+    min = 0;
     if(word != "MAX"){
-        max = 0;
+        min = 1;
     }
     bool minusFlag = 0;
     //Parsing the objective function
@@ -44,7 +44,7 @@ void parseObjectiveFunc(string line, vector<pair<int, mpq_class>>& objectiveFunc
         else if(b == '+'){minusFlag = 0;}
         else if(b == '-'){ minusFlag = 1;}
     }
-    if(!max){
+    if(min){
         for(int i =0; i<objectiveFunction.size(); i++){
             objectiveFunction[i].second *= -1;
         }
@@ -133,11 +133,12 @@ mtxData* inputParser(fstream& f){
     vector<vector<pair<int, mpq_class>>> constraintsMtx;
     mtxData* data = new mtxData;
     string line;
+    bool min;
     set<int> variables;
     int auxVariables;
     unordered_map<int , int> idxMap;
     getline(f, line);
-    parseObjectiveFunc(line, objectiveFunction, variables);
+    parseObjectiveFunc(line, objectiveFunction, variables, min);
     int _numObjectiveVar = variables.size();
     data->numObjectiveVar = _numObjectiveVar;
     parseConstraints(f, constraintsMtx, variables, auxVariables);
@@ -197,6 +198,6 @@ mtxData* inputParser(fstream& f){
     }
     //printObjectiveFunct(data);
     //printConstraints(data);
-
+    data->min = min;
     return data;
 }

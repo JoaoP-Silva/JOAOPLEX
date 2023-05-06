@@ -12,7 +12,6 @@ int main(int argc, char* argv[]){
     //Parse the input, generating a matrix close to canonical form.
     if(!fin.is_open()){ cout << "File error\n"; return 0;}
     mtxData* data = inputParser(fin);
-
     //Struct to save results
     results* out = new results;
 
@@ -90,6 +89,7 @@ int main(int argc, char* argv[]){
     for(int i = collumns - 1; i < auxCollumns -1; i ++){
         base.push_back(i);
     }
+
     simplexSolver(auxTableu, base);
 
     //Checking feasibility
@@ -103,7 +103,7 @@ int main(int argc, char* argv[]){
 
     else{
         //Returning to the original tableau
-        for(int j = 0; j < rows; j ++){
+        for(int j = 0; j < rows - 1; j ++){
             mainTableu[0][j] = auxTableu[0][j];
         }
         for(int i = 1; i < rows; i++){
@@ -122,7 +122,18 @@ int main(int argc, char* argv[]){
                 }
             }
         }
+
+        //Phase two: solve it!
         int r = simplexSolver(mainTableu, base);
+
+        //Whether its a minimization problem, multiply by -1 Z and the certificate.
+        if(data->min){
+            for(int j = 0; j < rows -1; j++){
+                mainTableu[0][j] *= -1;
+            }
+            mainTableu[0][collumns - 1] *= -1;
+        }
+
         if(r){
             out->status = "ilimitado";
             for(int i = 1; i < rows; i++){

@@ -51,7 +51,7 @@ int simplexSolver(vector<vector<mpq_class>>& tableau, vector<int>& base ){
     }
     while(1){
         bool allGreaterThanZero = 1;
-        for(int j = rows; j < collums - 1; j ++){
+        for(int j = rows - 1; j < collums - 1; j ++){
             if(tableau[0][j] < 0){
                 allGreaterThanZero = 0;
                 int r = lowerRatio(tableau, j);
