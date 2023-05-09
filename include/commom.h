@@ -17,7 +17,7 @@ using namespace std;
 struct mtxData{
     vector<mpq_class> objective;
     vector<vector<mpq_class>> constraints;
-    unordered_map<int, int> variablesMap;
+    unordered_map<int, string> variablesMap;
     int numObjectiveVar;
     bool min;
 };
@@ -27,11 +27,10 @@ struct mtxData{
 struct results{
     vector<mpq_class> certificate;
     vector<mpq_class> solution;
-    vector<int> variables;
+    vector<string> variables;
     mpq_class z;
     string status;
 };
-
 //Commom functions
 void printVector(vector<mpq_class>& v);
 

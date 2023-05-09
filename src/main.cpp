@@ -32,6 +32,7 @@ int main(int argc, char* argv[]){
         return 0;
     }
 
+
     int rows = data->constraints.size() + 1, collumns = data->constraints[0].size() + rows - 1;
 
     //Setting the main tableau

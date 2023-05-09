@@ -2,7 +2,8 @@
 
 using namespace std;
 
-void parseObjectiveFunc(string line, vector<pair<int, mpq_class>>& objectiveFunction, set<int>& variables, bool& min){
+void parseObjectiveFunc(string line, vector<pair<string, mpq_class>>& objectiveFunction, 
+    unordered_map<string, mpq_class>& variables, bool& min){
     string word;
     stringstream s(line);
     s >> word;
@@ -11,38 +12,31 @@ void parseObjectiveFunc(string line, vector<pair<int, mpq_class>>& objectiveFunc
         min = 1;
     }
     bool minusFlag = 0;
+    mpq_class coef = 1;
     //Parsing the objective function
     while(s){
         s >> word;
-        char b = word.back();
-        if(isdigit(b)){
-            mpq_class coef = 1;
-            int delimiter = 1;
-            char f = word.front();
-            if(isdigit(f)){ 
-                for(int i=0; i<word.size(); i++){
-                    if(!isdigit(word[i]) && word[i] !=  '/') {break;}
-                    delimiter = i+1;
-                }
-                coef = mpq_class(word.substr(0, delimiter));
-            }
-            else if(f == '-'){ minusFlag = 1; }
-            if(minusFlag){ coef *= -1; }
-            int figures = 0;
-                for(int i=word.size() - 1; i>=0; i--){
-                        if(!isdigit(word[i])) {break;}
-                        delimiter = i;
-                        figures++;
-                }
-            string sub = word.substr(delimiter, figures);
-            int idx = stoi(sub);
-            pair<int, mpq_class> p = make_pair(idx, coef);
-            objectiveFunction.push_back(p);
-            variables.insert(idx);
-            //cout << "Word = " << word << "Has coefficient = " << coef.get_d() << " and idx = " << idx << endl;
+        char f = word.front();
+        if(isdigit(f)){
+            coef = f;
         }
-        else if(b == '+'){minusFlag = 0;}
-        else if(b == '-'){ minusFlag = 1;}
+        else if(f == '*' || f == '+'){ continue; }
+        else if(f == '('){
+            string frac;
+             s >> word;
+            while(f != ')'){
+                frac += word;
+                s >> word;f = word.front();
+            }
+            coef = frac;
+        }
+        else if (f == '-'){
+            minusFlag = 1;
+        }else{
+            if(minusFlag){ coef *= -1; }
+            variables.insert(make_pair(word, coef));
+            objectiveFunction.push_back(make_pair(word, coef));
+        }
     }
     if(min){
         for(int i =0; i<objectiveFunction.size(); i++){
@@ -51,103 +45,95 @@ void parseObjectiveFunc(string line, vector<pair<int, mpq_class>>& objectiveFunc
     }
 }
 
-void parseConstraints(fstream& f, vector<vector<pair<int, mpq_class>>>& constraintsMtx, set<int> variables, int& auxVariables){
+void parseConstraints(fstream& f, vector<vector<pair<string, mpq_class>>>& constraintsMtx, 
+    unordered_map<string, mpq_class>& variables, int& auxVariables){
     string line, word;
     auxVariables = 0;
     while(getline(f, line)){
-        stringstream s(line);
-        if(line.empty()){continue;}
+        vector<pair<string, mpq_class>> constraint;
+        set<string> varInThisConstraint;
+        mpq_class coef = 1;
         bool minusFlag = 0, geqZeroFlag = 0;
-        vector<pair<int, mpq_class>> constraint;
+        string word;
+        stringstream s(line);
         while(s){
             s >> word;
-            char b = word.back();
-            if(isdigit(b)){
-                mpq_class coef = 1;
-                int delimiter = 1;
-                char f = word.front();
-                if(isdigit(f)){ 
-                    for(int i=0; i<word.size(); i++){
-                        if(!isdigit(word[i]) && word[i] !=  '/') {break;}
-                        delimiter = i+1;
-                    }
-                    coef = mpq_class(word.substr(0, delimiter));
-                }else if(f == '-'){ minusFlag = 1; }
-                if(minusFlag){ coef *= -1; }
-                int figures = 0;
-                for(int i=word.size() - 1; i>=0; i--){
-                        if(!isdigit(word[i])) {break;}
-                        delimiter = i;
-                        figures++;
-                }
-                string sub = word.substr(delimiter, figures);
-                int idx = stoi(sub);
-                pair<int, mpq_class> p = make_pair(idx, coef);
-                constraint.push_back(p);
-                variables.insert(idx);
+            char f = word.front();
+            if(isdigit(f)){
+                coef = word;
             }
-            else if(b == '+'){minusFlag = 0;}
-            else if(b == '-'){ minusFlag = 1;}
-            else if(b == '='){
-                char f = word.front();
-                if(f == '>'){
-                    s >> word;
-                    if(word == "0"){
-                        geqZeroFlag = 1;
-                        break;
-                    }
-                    mpq_class coef = -1;
-                    constraint.push_back(make_pair(-1, coef));
-                    auxVariables++;
-                    coef = mpq_class(word);
-                    constraint.push_back(make_pair(0, coef));
-                    s >> word;
+            else if(f == '*' || f == '+'){ continue; }
+            else if(f == '('){
+                string frac;
+                while(f != ')'){
+                    s >> word;f = word.front();
+                    frac += word;
                 }
-                else if(f == '<'){
-                    mpq_class coef = 1;
-                    constraint.push_back(make_pair(-1, coef));
-                    auxVariables++;
-                    s >> word;
-                    coef = mpq_class(word);
-                    constraint.push_back(make_pair(0, coef));
-                    s >> word;
+                coef = frac;
+            }
+            else if (f == '-'){
+                minusFlag = 1;
+            }
+            else if(f == '>'){
+                s >> word;
+                if(stoi(word) == 0 && varInThisConstraint.size() == 1){
+                    geqZeroFlag = 1;
+                    break;
                 }
-                else if(f == '='){
-                    s >> word;
-                    mpq_class coef(word);
-                    constraint.push_back(make_pair(0, coef));
-                    s >> word;
-                }else{
-                    cout << "Bad input\n";
-                }
+                mpq_class coef = -1;
+                constraint.push_back(make_pair("aux", coef));
+                auxVariables++;
+                coef = mpq_class(word);
+                constraint.push_back(make_pair("res", coef));
+                s >> word;
+            }
+            else if(f == '<'){
+                s >> word; 
+                mpq_class coef = 1;
+                constraint.push_back(make_pair("aux", coef));
+                auxVariables++;
+                coef = mpq_class(word);
+                constraint.push_back(make_pair("res", coef));
+                s >> word;
+            }
+            else if(f == '='){
+                s >> word;
+                mpq_class coef(word);
+                constraint.push_back(make_pair("res", coef));
+                s >> word;
+            }else{
+                if(minusFlag){ coef *= -1; }
+                variables.insert(make_pair(word, coef));
+                varInThisConstraint.insert(word);
+                constraint.push_back(make_pair(word, coef));
             }
         }
-        
         if(!geqZeroFlag){ constraintsMtx.push_back(constraint); }
     }
 }
 
 mtxData* inputParser(fstream& f){
     //A vector with pairs (index, value) of variables != 0 in the objective function
-    vector<pair<int, mpq_class>> objectiveFunction;
-    vector<vector<pair<int, mpq_class>>> constraintsMtx;
+    vector<pair<string, mpq_class>> objectiveFunction;
+    vector<vector<pair<string, mpq_class>>> constraintsMtx;
     mtxData* data = new mtxData;
     string line;
     bool min;
-    set<int> variables;
+    unordered_map<string, mpq_class> variables;
     int auxVariables;
-    unordered_map<int , int> idxMap;
+    unordered_map<string , int> idxMap;
     getline(f, line);
     parseObjectiveFunc(line, objectiveFunction, variables, min);
     int _numObjectiveVar = variables.size();
     data->numObjectiveVar = _numObjectiveVar;
+
     parseConstraints(f, constraintsMtx, variables, auxVariables);
-    int mapIdx = 0;
+    
     //cout << "variables.size() = " << variables.size() << endl;
-    for(auto it : variables){
-        idxMap.insert(make_pair(it, mapIdx));
-        data->variablesMap.insert(make_pair(mapIdx, it));
-        mapIdx++;
+    for(int mapIdx = 0; mapIdx < variables.size(); mapIdx++){
+        string thisVar = objectiveFunction[mapIdx].first;
+        idxMap.insert(make_pair(thisVar, mapIdx));
+        data->variablesMap.insert(make_pair(mapIdx, thisVar));
     }
     int numVariables = variables.size() + auxVariables;
     //cout << "constraintsMtx.size() = " << constraintsMtx.size() << endl;
@@ -166,7 +152,7 @@ mtxData* inputParser(fstream& f){
             data->objective.push_back(mpq_class(0));
     }
     for(int i = 0; i<objectiveFunction.size(); i++){
-        int k= objectiveFunction[i].first;
+        string k= objectiveFunction[i].first;
         int idx = idxMap[k];
         data->objective[idx] = objectiveFunction[i].second;
     }
@@ -175,23 +161,19 @@ mtxData* inputParser(fstream& f){
     for(int i =0; i<constraintsMtx.size(); i++){
         for(int j = 0; j<constraintsMtx[i].size(); j++){
             auto var = constraintsMtx[i][j];
-            int k = var.first, idx;
-            //If k is a variable from the original problem
-            if(k > 0){
-                idx = idxMap[k];
-                data->constraints[i][idx] = var.second;
-            }
-            else if(k == -1){
+            int idx;
+            string k = var.first;
+
+            if(k == "aux"){
                 thisAux++;
                 idx = thisAux;
                 data->constraints[i][idx] = var.second;
             }
-            else if(k == -2){
-                idx = thisAux;
-                data->constraints[i][idx] = var.second;
-            }
-            else if(k == 0){
+            else if(k == "res"){
                 idx = data->constraints[i].size() - 1;
+                data->constraints[i][idx] = var.second;
+            }else{
+                idx = idxMap[k];
                 data->constraints[i][idx] = var.second;
             }
         }

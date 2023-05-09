@@ -49,7 +49,7 @@ void printResult(results* r, fstream& outFile){
         outFile << "Objetivo: " << r->z.get_d() << endl;
         outFile << "Solucao:\n";
         for(int i = 0; i < r->variables.size(); i++){
-            outFile << r->solution[i].get_d() << "x" << r->variables[i] << " ";
+            outFile << r->solution[i].get_d() << r->variables[i] << " ";
         }
         outFile << endl;
     }
@@ -65,7 +65,7 @@ void setSolution(results* r, vector<vector<mpq_class>> tableau,
                 vector<int> base, mtxData* d){
 
     vector<mpq_class> coef(d->numObjectiveVar, 0);
-    vector<int> var(d->numObjectiveVar, 0);
+    vector<string> var(d->numObjectiveVar, "0");
     for(int i = 0; i <var.size(); i++){ var[i] = i; }
 
     int rows = tableau.size(), collums = tableau[0].size();
@@ -81,7 +81,7 @@ void setSolution(results* r, vector<vector<mpq_class>> tableau,
     }
     r->solution = coef;
     for(int i = 0; i < var.size(); i++){
-        var[i] = d->variablesMap[var[i]];
+        var[i] = d->variablesMap[i];
     }
     r->variables = var;
 }

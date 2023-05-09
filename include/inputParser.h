@@ -6,14 +6,15 @@
 #include <fstream>
 #include <sstream>
 #include <set>
+#include <unordered_map>
 
 #include "commom.h"
 
 using namespace std;
 
-void parseObjectiveFunc(string line, vector<pair<int, mpq_class>>& objectiveFunction, set<int>& variables, bool& min);
+void parseObjectiveFunc(string line, vector<pair<string, mpq_class>>& objectiveFunction, unordered_map<string, mpq_class>& variables, bool& min);
 
-void parseConstraints(fstream& f, vector<vector<pair<int, mpq_class>>>& constraintsMtx, set<int> variables, int& auxVariables);
+void parseConstraints(fstream& f, vector<vector<pair<string, mpq_class>>>& constraintsMtx, unordered_map<string, mpq_class>& variables, int& auxVariables);
 
 mtxData* inputParser(fstream& f);
 
