@@ -57,7 +57,6 @@ int main(int argc, char* argv[]){
             }
         }
     }
-
     //Setting the auxiliar tableau
     int auxRows = rows, auxCollumns = collumns + rows - 1;
     vector<vector<mpq_class>> auxTableu(auxRows, vector<mpq_class>(auxCollumns, 0));
@@ -90,7 +89,7 @@ int main(int argc, char* argv[]){
     for(int i = collumns - 1; i < auxCollumns -1; i ++){
         base.push_back(i);
     }
-
+    //Phase 1 simplex
     simplexSolver(auxTableu, base);
 
     //Checking feasibility
@@ -100,9 +99,7 @@ int main(int argc, char* argv[]){
         for(int j = 0; j < data->numObjectiveVar; j++){
             out->certificate.push_back(mainTableu[0][j]);
         }
-    }
-
-    else{
+    }else{
         //Returning to the original tableau
         for(int j = 0; j < rows - 1; j ++){
             mainTableu[0][j] = auxTableu[0][j];

@@ -49,7 +49,7 @@ void printResult(results* r, fstream& outFile){
         outFile << "Objetivo: " << r->z.get_d() << endl;
         outFile << "Solucao:\n";
         for(int i = 0; i < r->variables.size(); i++){
-            outFile << r->solution[i].get_d() << r->variables[i] << " ";
+            outFile << r->variables[i] << " = " << r->solution[i].get_d() << " ";
         }
         outFile << endl;
     }

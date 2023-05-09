@@ -3,7 +3,7 @@
 using namespace std;
 
 void parseObjectiveFunc(string line, vector<pair<string, mpq_class>>& objectiveFunction, 
-    unordered_map<string, mpq_class>& variables, bool& min){
+    unordered_map<string, mpq_class>& variables, vector<string>& variablesVec, bool& min){
     string word;
     stringstream s(line);
     s >> word;
@@ -18,7 +18,7 @@ void parseObjectiveFunc(string line, vector<pair<string, mpq_class>>& objectiveF
         s >> word;
         char f = word.front();
         if(isdigit(f)){
-            coef = f;
+            coef = word;
         }
         else if(f == '*' || f == '+'){ continue; }
         else if(f == '('){
@@ -34,7 +34,10 @@ void parseObjectiveFunc(string line, vector<pair<string, mpq_class>>& objectiveF
             minusFlag = 1;
         }else{
             if(minusFlag){ coef *= -1; }
-            variables.insert(make_pair(word, coef));
+            if(variables.find(word) == variables.end()){
+                    variables.insert(make_pair(word, coef));
+                    variablesVec.push_back(word);
+                }
             objectiveFunction.push_back(make_pair(word, coef));
         }
     }
@@ -46,7 +49,7 @@ void parseObjectiveFunc(string line, vector<pair<string, mpq_class>>& objectiveF
 }
 
 void parseConstraints(fstream& f, vector<vector<pair<string, mpq_class>>>& constraintsMtx, 
-    unordered_map<string, mpq_class>& variables, int& auxVariables){
+    unordered_map<string, mpq_class>& variables,vector<string>& variablesVec, int& auxVariables){
     string line, word;
     auxVariables = 0;
     while(getline(f, line)){
@@ -103,7 +106,11 @@ void parseConstraints(fstream& f, vector<vector<pair<string, mpq_class>>>& const
                 s >> word;
             }else{
                 if(minusFlag){ coef *= -1; }
-                variables.insert(make_pair(word, coef));
+                if(variables.find(word) == variables.end()){
+                    variables.insert(make_pair(word, coef));
+                    variablesVec.push_back(word);
+                }
+                
                 varInThisConstraint.insert(word);
                 constraint.push_back(make_pair(word, coef));
             }
@@ -120,18 +127,19 @@ mtxData* inputParser(fstream& f){
     string line;
     bool min;
     unordered_map<string, mpq_class> variables;
+    vector<string> variablesVec;
     int auxVariables;
     unordered_map<string , int> idxMap;
     getline(f, line);
-    parseObjectiveFunc(line, objectiveFunction, variables, min);
+    parseObjectiveFunc(line, objectiveFunction, variables, variablesVec, min);
     int _numObjectiveVar = variables.size();
     data->numObjectiveVar = _numObjectiveVar;
 
-    parseConstraints(f, constraintsMtx, variables, auxVariables);
+    parseConstraints(f, constraintsMtx, variables, variablesVec, auxVariables);
     
     //cout << "variables.size() = " << variables.size() << endl;
-    for(int mapIdx = 0; mapIdx < variables.size(); mapIdx++){
-        string thisVar = objectiveFunction[mapIdx].first;
+    for(int mapIdx = 0; mapIdx < variablesVec.size(); mapIdx++){
+        string thisVar = variablesVec[mapIdx];
         idxMap.insert(make_pair(thisVar, mapIdx));
         data->variablesMap.insert(make_pair(mapIdx, thisVar));
     }
@@ -152,7 +160,7 @@ mtxData* inputParser(fstream& f){
             data->objective.push_back(mpq_class(0));
     }
     for(int i = 0; i<objectiveFunction.size(); i++){
-        string k= objectiveFunction[i].first;
+        string k = objectiveFunction[i].first;
         int idx = idxMap[k];
         data->objective[idx] = objectiveFunction[i].second;
     }
